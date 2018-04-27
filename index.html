@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf8">
+    <title>WebAssembly stack tester</title>
+</head>
+<body>
+<button onclick="compileBuffer()">Compile an ArrayBuffer</button>
+<button onclick="compileStreaming()">Compile a Response</button>
+<button onclick="printStack()">Print Error.stack</button>
+<button onclick="throwError()">Throw an Error</button>
+<div id='output'>Result</div>
+<script>
+    const output = document.getElementById('output');
+    var instance;
+
+    const importObj = { js: {
+        printStack() { output.innerHTML = "Error.stack = <br>" + (new Error().stack).replace(/\n/g, '<br>'); },
+        throwError() { output.innerHTML = "Thrown"; throw new Error("thrown on purpose"); }
+    } };
+
+    function compileBuffer() {
+        fetch('test.wasm')
+        .then(response => response.arrayBuffer())
+        .then(buffer => WebAssembly.instantiate(buffer, importObj))
+        .then(result => {
+            instance = result.instance;
+            output.innerHTML = "Compiled ArrayBuffer successfully";
+        })
+        .catch(err => {
+            output.innerHTML = "Error: " + err;
+        });
+    }
+
+    function compileStreaming() {
+        WebAssembly.instantiateStreaming(fetch('test.wasm'), importObj)
+        .then(result => {
+            instance = result.instance;
+            output.innerHTML = "Compiled Response successfully";
+        })
+        .catch(err => {
+            output.innerHTML = "Error: " + err;
+        });
+    }
+
+    function printStack() {
+        print = true;
+        if (!instance) {
+            alert("compile something first");
+            return;
+        }
+        instance.exports.printStack();
+    }
+
+    function throwError() {
+        print = true;
+        if (!instance) {
+            alert("compile something first");
+            return;
+        }
+        instance.exports.throwError();
+    }
+</script>
+</body>
+</html>
