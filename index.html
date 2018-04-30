@@ -5,57 +5,75 @@
     <title>WebAssembly stack tester</title>
 </head>
 <body>
-<button onclick="compileBuffer()">Compile an ArrayBuffer</button>
-<button onclick="compileStreaming()">Compile a Response</button>
-<button onclick="printStack()">Print Error.stack</button>
-<button onclick="throwError()">Throw an Error</button>
-<div id='output'>Result</div>
+
+<h3>Compile:</h3>
+<div>
+    <button onclick="compileBuffer('test-no-names.wasm')">ArrayBuffer (no names)</button>
+    <button onclick="compileBuffer('test-with-names.wasm')">ArrayBuffer (with names)</button>
+    <button onclick="compileStreaming('test-no-names.wasm')">Response (no names)</button>
+     <button onclick="compileStreaming('test-with-names.wasm')">Response (with names)</button>
+</div>
+
+<h3>Run:</h3>
+<div>
+    <button onclick="onClickPrintStack()">Print Error.stack</button>
+    <button onclick="onClickThrowError()">Throw uncaught Error</button>
+</div>
+
+<h3>Current instance:</h3>
+<div id='currentInstance'>None</div>
+
+<h3>Output:</h3>
+<div id='output'></div>
+
 <script>
-    const output = document.getElementById('output');
+    const currentInstance = document.getElementById('currentInstance');
     var instance;
 
+    const output = document.getElementById('output');
+
     const importObj = { js: {
-        printStack() { output.innerHTML = "Error.stack = <br>" + (new Error().stack).replace(/\n/g, '<br>'); },
-        throwError() { output.innerHTML = "Thrown"; throw new Error("thrown on purpose"); }
+        doPrint() { output.innerHTML += (new Error().stack).replace(/\n/g, '<br>') + "<br>"; },
+        doThrow() { output.innerHTML += "Threw (check Web Console) <br><br>"; throw new Error("thrown on purpose"); }
     } };
 
-    function compileBuffer() {
-        fetch('test.wasm')
+    function compileBuffer(file) {
+        fetch(file)
         .then(response => response.arrayBuffer())
         .then(buffer => WebAssembly.instantiate(buffer, importObj))
         .then(result => {
             instance = result.instance;
-            output.innerHTML = "Compiled ArrayBuffer successfully";
+            currentInstance.innerHTML = "Compiled " + file + " via ArrayBuffer";
         })
         .catch(err => {
-            output.innerHTML = "Error: " + err;
+            alert("Error: " + err);
         });
     }
 
-    function compileStreaming() {
-        WebAssembly.instantiateStreaming(fetch('test.wasm'), importObj)
+    function compileStreaming(file) {
+        WebAssembly.instantiateStreaming(fetch(file), importObj)
         .then(result => {
             instance = result.instance;
-            output.innerHTML = "Compiled Response successfully";
+            currentInstance.innerHTML = "Compiled fetch(\"" + file + "\")";
         })
         .catch(err => {
-            output.innerHTML = "Error: " + err;
+            output.innerHTML += "Error: " + err + "<br><br>";
         });
     }
 
-    function printStack() {
+    function onClickPrintStack() {
         print = true;
         if (!instance) {
-            alert("compile something first");
+            alert("Compile something first");
             return;
         }
         instance.exports.printStack();
     }
 
-    function throwError() {
+    function onClickThrowError() {
         print = true;
         if (!instance) {
-            alert("compile something first");
+            alert("Compile something first");
             return;
         }
         instance.exports.throwError();

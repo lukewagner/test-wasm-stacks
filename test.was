@@ -1,6 +1,6 @@
-(module
-    (func $printStack (import "js" "printStack"))
-    (func $throwError (import "js" "throwError"))
-    (func (export "printStack") call $printStack)
-    (func (export "throwError") call $throwError)
+(module $hi
+    (func $doPrint (import "js" "doPrint"))
+    (func $doThrow (import "js" "doThrow"))
+    (func $printStack (export "printStack") call $doPrint)
+    (func $throwError (export "throwError") call $doThrow)
 )
