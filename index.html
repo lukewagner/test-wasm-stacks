@@ -33,7 +33,7 @@
     const output = document.getElementById('output');
 
     const importObj = { js: {
-        doPrint() { output.innerHTML += (new Error().stack).replace(/\n/g, '<br>') + "<br>"; },
+        doPrint() { output.innerHTML += "<p><code>" + (new Error().stack).replace(/\n/g, '<br>') + "</code></p>"; },
         doThrow() { output.innerHTML += "Threw (check Web Console) <br><br>"; throw new Error("thrown on purpose"); }
     } };
 
@@ -46,7 +46,7 @@
             currentInstance.innerHTML = "Compiled " + file + " via ArrayBuffer";
         })
         .catch(err => {
-            alert("Error: " + err);
+            alert("WebAssembly.instantiate() error: " + err);
         });
     }
 
@@ -57,7 +57,7 @@
             currentInstance.innerHTML = "Compiled fetch(\"" + file + "\")";
         })
         .catch(err => {
-            output.innerHTML += "Error: " + err + "<br><br>";
+            alert("WebAssembly.instantiateStreaming error: " + err);
         });
     }
 
