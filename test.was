@@ -1,4 +1,4 @@
-(module $hi
+(module $theModule
     (func $doPrint (import "js" "doPrint"))
     (func $doThrow (import "js" "doThrow"))
     (func $printStack (export "printStack") call $doPrint)
