@@ -5,6 +5,9 @@
     (func $doPrintResult (import "js" "doPrintResult") (param i32))
     (func $printStack (export "printStack") call $doPrintStack)
     (func $throwError (export "throwError") call $doThrowError)
+
+    ;; This function is just meant to take 1/2 of the self time
+    ;; and then call a JS function that takes the other 1/2.
     (func $work (export "work")
         (local $outer i32)
         (local $inner i32)
