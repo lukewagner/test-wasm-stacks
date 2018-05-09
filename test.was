@@ -8,7 +8,6 @@
 
     ;; For testing profiling, this function is meant to take roughly half
     ;; the self time and call out to JS for the other half of self time.
-    function that takes the other 1/2.
     (func $work (export "work")
         (local $outer i32)
         (local $inner i32)
@@ -22,7 +21,7 @@
             )
             (set_local $acc (call $doWork (get_local $acc)))
             (set_local $outer (i32.add (get_local $outer) (i32.const 1)))
-            (br_if $outer_top (i32.lt_u (get_local $outer) (i32.const 1000)))
+            (br_if $outer_top (i32.lt_u (get_local $outer) (i32.const 100)))
         )
         (call $doPrintResult (get_local $acc))
     )
