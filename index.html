@@ -11,13 +11,14 @@
     <button onclick="compileBuffer('test-no-names.wasm')">ArrayBuffer (no names)</button>
     <button onclick="compileBuffer('test-with-names.wasm')">ArrayBuffer (with names)</button>
     <button onclick="compileStreaming('test-no-names.wasm')">Response (no names)</button>
-     <button onclick="compileStreaming('test-with-names.wasm')">Response (with names)</button>
+    <button onclick="compileStreaming('test-with-names.wasm')">Response (with names)</button>
 </div>
 
 <h3>Run:</h3>
 <div>
-    <button onclick="onClickPrintStack()">Print Error.stack</button>
-    <button onclick="onClickThrowError()">Throw uncaught Error</button>
+    <button onclick="callExport('printStack')">Print Error.stack</button>
+    <button onclick="callExport('throwError')">Throw uncaught Error</button>
+    <button onclick="callExport('work')">Run a long computation</button>
 </div>
 
 <h3>Current instance:</h3>
@@ -33,8 +34,21 @@
     const output = document.getElementById('output');
 
     const importObj = { js: {
-        doPrint() { output.innerHTML += "<p>Error.stack =<br><blockquote><code>" + (new Error().stack).replace(/\n/g, '<br>') + "</code></blockquote></p>"; },
-        doThrow() { output.innerHTML += "Threw (check Web Console) <br><br>"; throw new Error("thrown on purpose"); }
+        doPrintStack() {
+            output.innerHTML += "<p>Error.stack =<br><blockquote><code>" + (new Error().stack).replace(/\n/g, '<br>') + "</code></blockquote></p>";
+        },
+        doThrowError() {
+            output.innerHTML += "Threw (check console) <br><br>";
+            throw new Error("thrown on purpose");
+        },
+        doWork(acc) {
+            for (var i = 0; i < 1000000; i++)
+                acc++;
+            return acc;
+        },
+        doPrintResult(result) {
+            output.innerHTML += "Finished work with result " + result + "<br><br>";
+        }
     } };
 
     function compileBuffer(file) {
@@ -61,22 +75,12 @@
         });
     }
 
-    function onClickPrintStack() {
-        print = true;
+    function callExport(exportName) {
         if (!instance) {
             alert("Compile something first");
             return;
         }
-        instance.exports.printStack();
-    }
-
-    function onClickThrowError() {
-        print = true;
-        if (!instance) {
-            alert("Compile something first");
-            return;
-        }
-        instance.exports.throwError();
+        instance.exports[exportName]();
     }
 </script>
 </body>
